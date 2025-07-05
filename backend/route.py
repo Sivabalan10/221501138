@@ -11,10 +11,12 @@ app = Flask(__name__)
 CORS(app)
 init_db()
 
+# Home endpoint
 @app.route('/')
 def index():
     return jsonify({"message": "Welcome to the URL Shortener API"}), 200
 
+# Endpoint to shorten a URL
 @app.route("/shorturls", methods=["POST"])
 def shorten_url_route():
     data = request.json
@@ -22,12 +24,15 @@ def shorten_url_route():
     validity = data.get('validity', 30)
     shortcode = data.get('shortcode')
 
+    # Check if URL is provided
     if not long_url:
         log("No URL provided", level="error", package="route")
         return jsonify({"error": "No URL provided"}), 400
 
     try:
+        # Generate shortcode and expiry
         code, expiry = shorten_url(long_url, validity, shortcode)
+        # Save to database
         insert_url(long_url, code, validity, expiry)
         # Build the full short URL
         short_url_full = request.host_url.rstrip('/') + '/r/' + code
@@ -36,6 +41,7 @@ def shorten_url_route():
         log(f"Shorten URL error: {str(e)}", level="error", package="route")
         return jsonify({"error": str(e)}), 400
 
+# Endpoint to get statistics for a short URL
 @app.route("/shorturl/<short_url_link>", methods=["GET"])
 def short_url_stats(short_url_link):
     url_row = get_url(short_url_link)
@@ -53,6 +59,7 @@ def short_url_stats(short_url_link):
     }
     return jsonify(response), 200
 
+# Endpoint to redirect from short URL to long URL
 @app.route("/r/<shortcode>", methods=["GET"])
 def redirect_short_url(shortcode):
     url_row = get_url(shortcode)
@@ -60,9 +67,11 @@ def redirect_short_url(shortcode):
         log(f"Short URL not found for redirect: {shortcode}", level="error", package="route")
         return jsonify({"error": "Short URL not found"}), 404
     try:
+        # Log the click event
         insert_stat(shortcode, url_row[2], request.remote_addr)
     except Exception as e:
         log(f"Insert stat error: {str(e)}", level="error", package="route")
+    # Redirect to the original long URL
     return redirect(url_row[2])
 
 if __name__ == "__main__":
