@@ -89,8 +89,7 @@ The handler uses the `requests` library to POST logs to `http://20.244.56.144/ev
 - The log function is called as `log(message, level, package, stack)` throughout the codebase.
 - The Bearer token for authorization is stored in the `.env` file as `LOG_AUTH_TOKEN`.
 - All errors, including invalid URLs, missing parameters, and database issues, are logged using this handler.
-
-For more details, see the [requests documentation](https://requests.readthedocs.io/en/latest/).
+.
 
 ---
 
