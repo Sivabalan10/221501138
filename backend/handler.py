@@ -1,8 +1,12 @@
 import requests
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 LOG_URL = "http://20.244.56.144/evaluation-service/logs"
-AUTH_TOKEN = os.getenv("LOG_AUTH_TOKEN")  # Set this in your .env
+AUTH_TOKEN = os.getenv("LOG_AUTH_TOKEN") 
 
 def log(message, level="error", package="handler", stack="backend"):
     headers = {
